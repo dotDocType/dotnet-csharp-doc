@@ -1,0 +1,206 @@
+---
+title: "Learn the fundamentals of the C# type system"
+description: Learn about creating types in C#, such as tuples, records, value types, and reference types. Learn to choose between these options.
+ms.date: 12/17/2025
+helpviewer_keywords:
+  - "value types [C#]"
+  - "reference types [C#]"
+  - "types [C#]"
+  - "C# language, data types"
+  - "common type system [C#]"
+  - "data types [C#]"
+  - "C# language, types"
+  - "strong typing [C#]"
+---
+# The C# type system
+
+C# is a strongly typed language. Every variable and constant has a type, as does every expression that evaluates to a value. C# primarily uses a *normative type system*. A *normative type system* uses names to identify each type. In C#, `struct`, `class`, and `interface` types, including `record` types, are all identified by their name. Every method declaration specifies a name, type, and kind (value, reference, or output) for each parameter and for the return value. The .NET class library defines built-in numeric types and complex types that represent a wide variety of constructs. These constructs include the file system, network connections, collections and arrays of objects, and dates. A typical C# program uses types from the class library and user-defined types that model the concepts that are specific to the program's problem domain.
+
+C# also supports *structural types*, such as tuples and anonymous types. *Structural types* are defined by the names and types of each member, and the order of members in an expression. Structural types don't have unique names.
+
+The information stored in a type can include the following items:
+
+- The storage space that a variable of the type requires.
+- The maximum and minimum values that it can represent.
+- The members (methods, fields, events, and so on) that it contains.
+- The base type it inherits from.
+- The interfaces it implements.
+- The operations that are permitted.
+
+The compiler uses type information to make sure all operations that are performed in your code are *type safe*. For example, if you declare a variable of type [`int`](../../language-reference/builtin-types/integral-numeric-types.md), the compiler allows you to use the variable in addition and subtraction operations. If you try to perform those same operations on a variable of type [`bool`](../../language-reference/builtin-types/bool.md), the compiler generates an error, as shown in the following example:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="TypeSafeExample":::
+
+> [!NOTE]
+> C and C++ developers, notice that in C#, `bool` isn't convertible to `int`.
+
+The compiler embeds the type information into the executable file as metadata. The common language runtime (CLR) uses that metadata at run time to further guarantee type safety when it allocates and reclaims memory.
+
+## Specifying types in variable declarations
+
+When you declare a variable or constant in a program, you must either specify its type or use the [`var`](../../language-reference/statements/declarations.md#implicitly-typed-local-variables) keyword to let the compiler infer the type. The following example shows some variable declarations that use both built-in numeric types and complex user-defined types:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="Declarations":::
+
+You specify the types of method parameters and return values in the method declaration. The following signature shows a method that requires an `int` as an input argument and returns a string:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="GetName":::
+
+After you declare a variable, you can't redeclare it with a new type, and you can't assign a value that's incompatible with its declared type. For example, you can't declare an `int` and then assign it a Boolean value of `true`. However, you can convert values to other types, such as when you assign them to new variables or pass them as method arguments. The compiler automatically performs a *type conversion* that doesn't cause data loss. A conversion that might cause data loss requires a *cast* in the source code.
+
+For more information, see [Casting and Type Conversions](../../programming-guide/types/casting-and-type-conversions.md).
+
+## Built-in types
+
+C# provides a standard set of built-in types. These types represent integers, floating point values, Boolean expressions, text characters, decimal values, and other types of data. The language also includes built-in `string` and `object` types. You can use these types in any C# program. For a complete list of the built-in types, see [Built-in types](../../language-reference/builtin-types/built-in-types.md).
+
+## Custom types
+
+Create structural types by using [tuples](../../language-reference/builtin-types/value-tuples.md) for storing related data members. These types provide a structure that holds multiple members. Tuples have limited behavior. They're a container for values. These are the simplest types you can create. You might later decide you need behavior. In that case, you can convert a tuple to either a `struct` or `class`.
+
+Use the [`struct`](../../language-reference/builtin-types/struct.md), [`class`](../../language-reference/keywords/class.md), [`interface`](../../language-reference/keywords/interface.md), [`enum`](../../language-reference/builtin-types/enum.md), and [`record`](../../language-reference/builtin-types/record.md) constructs to create your own custom types. The .NET class library itself is a collection of custom types that you can use in your own applications. By default, the most frequently used types in the class library are available in any C# program. You make other types available by explicitly adding a package reference to the package that provides them. After the compiler has a reference to the package, you can declare variables and constants of the types declared in that package's assemblies in source code.
+
+One of the first decisions you make when defining a type is deciding which construct to use for your type. The following list helps make that initial decision. Some choices overlap. In most scenarios, more than one option is a reasonable choice.
+
+- If the data type isn't part of your app domain and doesn't include behavior, use a structural type.
+- If the data storage size is small, no more than 64 bytes, choose a `struct` or `record struct`.
+- If the type is immutable, or you want nondestructive mutation, choose a `struct` or `record struct`.
+- If your type should have value semantics for equality, choose a `record class` or `record struct`.
+- If the type is primarily for storing data, with minimal behavior, choose a `record class` or `record struct`.
+- If the type is part of an inheritance hierarchy, choose a `record class` or a `class`.
+- If the type uses polymorphism, choose a `class`.
+- If the primary purpose is behavior, choose a `class`.
+
+You can also choose an `interface` to model a *contract*: behavior described by members that can be implemented by unrelated types. Interfaces are abstract and declare members that must be implemented by all `class` or `struct` types that inherit from that interface.
+
+## The common type system
+
+The common type system supports the principle of inheritance. Types can derive from other types, called *base types*. The derived type inherits (with some restrictions) the methods, properties, and other members of the base type. The base type can in turn derive from some other type, in which case the derived type inherits the members of both base types in its inheritance hierarchy.
+
+All types, including built-in numeric types such as <xref:System.Int32?displayProperty=nameWithType> (C# keyword: `int`), ultimately derive from a single base type, which is <xref:System.Object?displayProperty=nameWithType> (C# keyword: [`object`](../../language-reference/builtin-types/reference-types.md)). This unified type hierarchy is called the [Common Type System](../../../standard/base-types/common-type-system.md) (CTS). For more information about inheritance in C#, see [Inheritance](../object-oriented/inheritance.md).
+
+Each type in the CTS is defined as either a *value type* or a *reference type*. These types include all custom types in the .NET class library and also your own user-defined types:
+
+- Types that you define by using the `struct` or `record struct` keywords are value types. All the built-in numeric types are `structs`.
+- Types that you define by using the `class`, `record class`, or `record` keywords are reference types.
+
+Reference types and value types have different compile-time rules and different run-time behavior.
+
+> [!NOTE]
+> The most commonly used types are all organized in the <xref:System> namespace. However, the namespace in which a type is contained has no relation to whether it's a value type or reference type.
+
+Classes and structs are two of the basic constructs of the common type system in .NET. Each construct is essentially a data structure that encapsulates a set of data and behaviors that belong together as a logical unit. The data and behaviors are the *members* of the class, struct, or record. The members include its methods, properties, events, and so on, as listed later in this article.
+
+A class, struct, or record declaration is like a blueprint that you use to create instances or objects at run time. If you define a class, struct, or record named `Person`, `Person` is the name of the type. If you declare and initialize a variable `p` of type `Person`, `p` is said to be an object or instance of `Person`. You can create multiple instances of the same `Person` type, and each instance can have different values in its properties and fields.
+
+A class is a reference type. When you create an object of the type, the variable to which you assign the object holds only a reference to that memory. When you assign the object reference to a new variable, the new variable refers to the original object. Changes you make through one variable are reflected in the other variable because they both refer to the same data.
+
+A struct is a value type. When you create a struct, the variable to which you assign the struct holds the struct's actual data. When you assign the struct to a new variable, it's copied. The new variable and the original variable therefore contain two separate copies of the same data. Changes you make to one copy don't affect the other copy.
+
+Record types can be either reference types (`record class`) or value types (`record struct`). Record types contain methods that support value-equality.
+
+In general, use classes to model more complex behavior. Classes typically store data that you modify after a class object is created. Structs are best suited for small data structures. Structs typically store data that you don't modify after the struct is created. Record types are data structures with extra compiler synthesized members. Records typically store data that you don't modify after the object is created.
+
+### Value types
+
+Value types derive from <xref:System.ValueType?displayProperty=nameWithType>, which derives from <xref:System.Object?displayProperty=nameWithType>. Types that derive from <xref:System.ValueType?displayProperty=nameWithType> have special behavior in the CLR. Value type variables directly contain their values. The memory for a struct is allocated inline in whatever context the variable is declared. You can declare `record struct` types that are value types and include the synthesized members for [records](../../language-reference/builtin-types/record.md).
+
+Two categories of value types exist: `struct` and `enum`.
+
+The built-in numeric types are structs, and they have fields and methods that you can access:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="ConstantByte":::
+
+But you declare and assign values to them as if they're simple non-aggregate types:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="NonAggregateTypes":::
+
+Value types are *sealed*. You can't derive a type from any value type, such as <xref:System.Int32?displayProperty=nameWithType>. You can't define a struct to inherit from any user-defined class or struct because a struct can only inherit from <xref:System.ValueType?displayProperty=nameWithType>. However, a struct can implement one or more interfaces. You can cast a struct type to any interface type that it implements. This cast causes a *boxing* operation to wrap the struct inside a reference type object on the managed heap. Boxing operations occur when you pass a value type to a method that takes a <xref:System.Object?displayProperty=nameWithType> or any interface type as an input parameter. For more information, see [Boxing and Unboxing](../../programming-guide/types/boxing-and-unboxing.md).
+
+Use the [struct](../../language-reference/builtin-types/struct.md) keyword to create your own custom value types. Typically, a struct is used as a container for a small set of related variables, as shown in the following example:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="Coords":::
+
+For more information about structs, see [Structure types](../../language-reference/builtin-types/struct.md). For more information about value types, see [Value types](../../language-reference/builtin-types/value-types.md).
+
+The other category of value types is `enum`. An enum defines a set of named integral constants. For example, the <xref:System.IO.FileMode?displayProperty=nameWithType> enumeration in the .NET class library contains a set of named constant integers that specify how a file should be opened. It's defined as shown in the following example:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="EnumFileMode":::
+
+The <xref:System.IO.FileMode.Create?displayProperty=fullName>  constant has a value of 2. However, the name is much more meaningful for humans reading the source code, and for that reason it's better to use enumerations instead of constant literal numbers. For more information, see <xref:System.IO.FileMode?displayProperty=nameWithType>.
+
+All enums inherit from <xref:System.Enum?displayProperty=nameWithType>, which inherits from <xref:System.ValueType?displayProperty=nameWithType>. All the rules that apply to structs also apply to enums. For more information about enums, see [Enumeration types](../../language-reference/builtin-types/enum.md).
+
+### Reference types
+
+A type that you define as a `class`, `record class`, `record`, [`delegate`](../../language-reference/builtin-types/reference-types.md), array, or [`interface`](../../language-reference/keywords/interface.md) is a [`reference type`](../../language-reference/keywords/reference-types.md).
+
+When you declare a variable of a [`reference type`](../../language-reference/keywords/reference-types.md), it contains the value [`null`](../../language-reference/keywords/null.md) until you assign it with an instance of that type or create one by using the [`new`](../../language-reference/operators/new-operator.md) operator. The following example demonstrates creation and assignment of a class:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="DeclarationAndAssignment":::
+
+You can't directly instantiate an [`interface`](../../language-reference/keywords/interface.md) by using the [`new`](../../language-reference/operators/new-operator.md) operator. Instead, create and assign an instance of a class that implements the interface. Consider the following example:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="InterfaceDeclaration":::
+
+When you create the object, the system allocates memory on the managed heap. The variable holds only a reference to the location of the object. Types on the managed heap require overhead both when they're allocated and when they're reclaimed. *Garbage collection* is the automatic memory management functionality of the CLR, which performs the reclamation. However, garbage collection is also highly optimized, and in most scenarios it doesn't create a performance issue. For more information about garbage collection, see [Automatic Memory Management](../../../standard/automatic-memory-management.md).
+
+All arrays are reference types, even if their elements are value types. Arrays implicitly derive from the <xref:System.Array?displayProperty=nameWithType> class. You declare and use them by using the simplified syntax that C# provides, as shown in the following example:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="ArrayDeclaration":::
+
+Reference types fully support inheritance. When you create a class, you can inherit from any other interface or class that isn't defined as [sealed](../../language-reference/keywords/sealed.md). Other classes can inherit from your class and override your virtual methods. For more information about how to create your own classes, see [Classes, structs, and records](../object-oriented/index.md). For more information about inheritance and virtual methods, see [Inheritance](../object-oriented/inheritance.md).
+
+## Types of literal values
+
+In C#, the compiler assigns a type to literal values. You can specify how a numeric literal should be typed by appending a letter to the end of the number. For example, to specify that the value `4.56` should be treated as a `float`, append an "f" or "F" after the number: `4.56f`. If you don't append a letter, the compiler infers a type for the literal. For more information about which types you can specify with letter suffixes, see [Integral numeric types](../../language-reference/builtin-types/integral-numeric-types.md) and [Floating-point numeric types](../../language-reference/builtin-types/floating-point-numeric-types.md).
+
+Because literals are typed, and all types ultimately derive from <xref:System.Object?displayProperty=nameWithType>, you can write and compile code such as the following code:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="ConvertTypes":::
+
+## Generic types
+
+Declare a type with one or more *type parameters* that act as placeholders for the actual type (the *concrete type*). Client code provides the concrete type when it creates an instance of the type. These types are called *generic types*. For example, the .NET type <xref:System.Collections.Generic.List%601?displayProperty=nameWithType> has one type parameter that by convention is named `T`. When you create an instance of the type, you specify the type of the objects that the list contains, such as `string`:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="GenericType":::
+
+Using the type parameter makes it possible to reuse the same class to hold any type of element, without having to convert each element to [object](../../language-reference/builtin-types/reference-types.md). Generic collection classes are *strongly typed collections* because the compiler knows the specific type of the collection's elements and can raise an error at compile time if, for example, you try to add an integer to the `stringList` object in the previous example. For more information, see [Generics](generics.md).
+
+## Tuples and anonymous types
+
+Creating a type for simple sets of related values can be inconvenient if you don't intend to store or pass these values using public APIs. You can create *tuples* or *anonymous types* for this purpose. For more information, see [tuples](../../language-reference/builtin-types/value-tuples.md) and [Anonymous Types](anonymous-types.md).
+
+## Nullable value types
+
+Ordinary value types can't have a value of [`null`](../../language-reference/keywords/null.md). However, you can create *nullable value types* by appending a `?` after the type. For example, `int?` is an `int` type that can also have the value [`null`](../../language-reference/keywords/null.md). Nullable value types are instances of the generic struct type <xref:System.Nullable%601?displayProperty=nameWithType>. Nullable value types are especially useful when you're passing data to and from databases in which numeric values might be `null`. For more information, see [Nullable value types](../../language-reference/builtin-types/nullable-value-types.md).
+
+## Implicit type declarations
+
+Implicitly type a local variable (but not class members) by using the [`var`](../../language-reference/statements/declarations.md#implicitly-typed-local-variables) keyword. The variable still receives a type at compile time, but the compiler provides the type. For more information, see [Implicitly Typed Local Variables](../../programming-guide/classes-and-structs/implicitly-typed-local-variables.md).
+
+## Compile-time type and run-time type
+
+A variable can have different compile-time and run-time types. The *compile-time type* is the declared or inferred type of the variable in the source code. The *run-time type* is the type of the instance referred to by that variable. Often those two types are the same, as in the following example:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="CompileTimeType":::
+
+In other cases, the compile-time type is different, as shown in the following two examples:
+
+:::code language="csharp" source="../../programming-guide/types/snippets/index/Program.cs" ID="RuntimeTypes":::
+
+In both of the preceding examples, the run-time type is a `string`. The compile-time type is `object` in the first line, and `IEnumerable<char>` in the second.
+
+If the two types are different for a variable, it's important to understand when the compile-time type and the run-time type apply. The compile-time type determines all the actions the compiler takes. These compiler actions include method call resolution, overload resolution, and available implicit and explicit casts. The run-time type determines all actions that are resolved at run time. These run-time actions include dispatching virtual method calls, evaluating `is` and `switch` expressions, and other type testing APIs. To better understand how your code interacts with types, recognize which action applies to which type.
+
+## Related sections
+
+For more information, see the following articles:
+
+- [Builtin types](../../language-reference/builtin-types/built-in-types.md)
+- [Value Types](../../language-reference/builtin-types/value-types.md)
+- [Reference Types](../../language-reference/keywords/reference-types.md)
+
+## C# language specification
+
+[!INCLUDE[CSharplangspec](~/includes/csharplangspec-md.md)]
